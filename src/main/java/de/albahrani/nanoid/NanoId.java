@@ -10,24 +10,53 @@ import java.util.function.Supplier;
  * @version 1.1.0
  */
 public class NanoId {
-    // Default URL-friendly alphabet (A-Za-z0-9_-), optimized for compression.
+    /**
+     * Default URL-friendly alphabet (A-Za-z0-9_-), optimized for compression.
+     * Use for standard NanoId generation.
+     */
     public static final String URL_ALPHABET = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
-    // Hexadecimal alphabet (0-9, a-f) for hex IDs.
+    /**
+     * Hexadecimal alphabet (0-9, a-f) for hex IDs.
+     * Use for hexadecimal NanoIds.
+     */
     public static final String HEX_ALPHABET = "0123456789abcdef";
-    // Base58 alphabet (no 0, O, I, l) for readability, used in crypto/URLs.
+    /**
+     * Base58 alphabet (no 0, O, I, l) for readability, used in crypto/URLs.
+     * Use for Base58 NanoIds.
+     */
     public static final String BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-    // Numeric alphabet (0-9) for number-only IDs and PINs.
+    /**
+     * Numeric alphabet (0-9) for number-only IDs and PINs.
+     * Use for numeric NanoIds.
+     */
     public static final String NUMERIC_ALPHABET = "0123456789";
-    // Alphanumeric alphabet (A-Z, a-z, 0-9), no special chars.
+    /**
+     * Alphanumeric alphabet (A-Z, a-z, 0-9), no special chars.
+     * Use for alphanumeric NanoIds.
+     */
     public static final String ALPHANUMERIC_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    // Thread-local SecureRandom for performance in multi-threaded environments.
+    /**
+     * Thread-local SecureRandom for performance in multi-threaded environments.
+     * Used internally for random number generation.
+     */
     private static final ThreadLocal<SecureRandom> THREAD_LOCAL_RANDOM = 
         ThreadLocal.withInitial(SecureRandom::new);
-    // Default ID length
+    /**
+     * Default NanoId length (21).
+     * Used for standard NanoId generation.
+     */
     public static final int DEFAULT_ID_LENGTH = 21;
-    // Common ID lengths for popular alphabets
+    /**
+     * Common hexadecimal NanoId length (16).
+     */
     public static final int HEX_ID_LENGTH = 16;
+    /**
+     * Common Base58 NanoId length (22).
+     */
     public static final int BASE58_ID_LENGTH = 22;
+    /**
+     * Common short NanoId length (8).
+     */
     public static final int SHORT_ID_LENGTH = 8;
 
     /**
@@ -138,12 +167,73 @@ public class NanoId {
         return 1.0 - Math.exp(exponent);
     }
 
+    /**
+     * Generates a hexadecimal NanoId (16 chars, HEX_ALPHABET).
+     * @return Hexadecimal unique string ID
+     */
+    public static String nanoidHex() {
+        return customNanoid(HEX_ALPHABET, HEX_ID_LENGTH);
+    }
+
+    /**
+     * Generates a Base58 NanoId (22 chars, BASE58_ALPHABET).
+     * @return Base58 unique string ID
+     */
+    public static String nanoidBase58() {
+        return customNanoid(BASE58_ALPHABET, BASE58_ID_LENGTH);
+    }
+
+    /**
+     * Generates a short NanoId (8 chars, URL_ALPHABET).
+     * @return Short unique string ID
+     */
+    public static String nanoidShort() {
+        return customNanoid(URL_ALPHABET, SHORT_ID_LENGTH);
+    }
+
+    /**
+     * Utility method to test the uniformity of generated IDs for a given alphabet and length.
+     * Returns a map of character frequencies after generating the specified number of IDs.
+     * Useful for advanced users to verify distribution.
+     *
+     * @param alphabet The alphabet to use
+     * @param idLength The length of each ID
+     * @param sampleSize The number of IDs to generate
+     * @return Map of character to frequency
+     */
+    public static java.util.Map<Character, Integer> testDistribution(String alphabet, int idLength, int sampleSize) {
+        validateAlphabetAndSize(alphabet, idLength);
+        java.util.Map<Character, Integer> freq = new java.util.HashMap<>();
+        for (int i = 0; i < sampleSize; i++) {
+            String id = customNanoid(alphabet, idLength);
+            for (char c : id.toCharArray()) {
+                freq.put(c, freq.getOrDefault(c, 0) + 1);
+            }
+        }
+        return freq;
+    }
+
+    /**
+     * Validates the alphabet and size parameters for NanoId generation.
+     * Throws IllegalArgumentException if invalid.
+     * Ensures alphabet is not null/empty, has no duplicates, and size is positive.
+     *
+     * @param alphabet The alphabet to validate
+     * @param size The size to validate
+     */
     private static void validateAlphabetAndSize(String alphabet, int size) {
         if (alphabet == null || alphabet.isEmpty()) {
             throw new IllegalArgumentException("NanoId: alphabet cannot be null or empty");
         }
         if (size <= 0) {
             throw new IllegalArgumentException("NanoId: size must be positive, got: " + size);
+        }
+        // Check for duplicate characters in the alphabet
+        java.util.Set<Character> seen = new java.util.HashSet<>();
+        for (char c : alphabet.toCharArray()) {
+            if (!seen.add(c)) {
+                throw new IllegalArgumentException("NanoId: alphabet contains duplicate character '" + c + "'");
+            }
         }
     }
 }
