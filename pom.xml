@@ -50,7 +50,7 @@
         <maven.source.plugin.version>3.3.0</maven.source.plugin.version>
         <maven.gpg.plugin.version>3.1.0</maven.gpg.plugin.version>
         <nexus.staging.plugin.version>1.6.13</nexus.staging.plugin.version>
-        <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
+        <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
         
         <!-- GPG signing control -->
         <gpg.skip>true</gpg.skip>
