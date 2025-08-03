@@ -7,8 +7,8 @@
  * @author Alexander Al-Bahrani
  * @since 1.2.0
  */
-module com.nanoid {
-    exports com.nanoid;
+module de.albahrani.nanoid {
+    exports de.albahrani.nanoid;
     
     requires java.base;
 }

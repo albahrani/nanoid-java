@@ -1,4 +1,4 @@
-package com.nanoid;
+package de.albahrani.nanoid;
 
 import java.security.SecureRandom;
 

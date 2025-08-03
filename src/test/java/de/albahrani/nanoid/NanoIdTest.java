@@ -1,4 +1,4 @@
-package com.nanoid;
+package de.albahrani.nanoid;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
