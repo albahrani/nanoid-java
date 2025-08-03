@@ -11,5 +11,4 @@ module com.nanoid {
     exports com.nanoid;
     
     requires java.base;
-    requires transitive java.logging;
 }

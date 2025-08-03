@@ -56,59 +56,16 @@ public class NanoId {
     public static final String ALPHANUMERIC_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     
     /**
-     * Pool size multiplier for efficient random byte generation.
-     * Larger pools reduce system calls but use more memory.
-     */
-    private static final int POOL_SIZE_MULTIPLIER = 128;
-    
-    /**
      * Thread-local SecureRandom for better performance in multi-threaded environments.
      */
     private static final ThreadLocal<SecureRandom> THREAD_LOCAL_RANDOM = 
         ThreadLocal.withInitial(SecureRandom::new);
-    
-    /**
-     * Thread-local byte pools to reduce garbage collection.
-     */
-    private static final ThreadLocal<BytePool> THREAD_LOCAL_POOL = 
-        ThreadLocal.withInitial(BytePool::new);
-
-    /**
-     * Internal class for managing byte pools to reduce GC pressure.
-     */
-    private static class BytePool {
-        private byte[] pool;
-        private int poolOffset;
-        
-        void fillPool(int bytes) {
-            if (pool == null || pool.length < bytes) {
-                pool = new byte[bytes * POOL_SIZE_MULTIPLIER];
-                THREAD_LOCAL_RANDOM.get().nextBytes(pool);
-                poolOffset = 0;
-            } else if (poolOffset + bytes > pool.length) {
-                THREAD_LOCAL_RANDOM.get().nextBytes(pool);
-                poolOffset = 0;
-            }
-            poolOffset += bytes;
-        }
-        
-        byte[] getBytes(int size) {
-            fillPool(size);
-            // Return a view of the pool, not a copy
-            byte[] result = new byte[size];
-            System.arraycopy(pool, poolOffset - size, result, 0, size);
-            return result;
-        }
-    }
 
     /**
      * Generates a NanoId string with the default size of 21 characters.
      * 
-     * <p>The default size of 21 was chosen to have a collision probability 
-     * similar to UUID v4, but with a more compact representation.
-     * 
-     * <p>This method is optimized for performance and uses a byte pool
-     * to reduce garbage collection pressure.
+     * <p>Highly optimized version for the default URL alphabet.
+     * Eliminates array copying and uses direct char array generation.
      * 
      * @return a URL-friendly unique string ID of 21 characters
      */
@@ -119,8 +76,8 @@ public class NanoId {
     /**
      * Generates a NanoId string with the specified size.
      * 
-     * <p>This method uses optimized masking to ensure uniform distribution
-     * across the URL alphabet, matching the JavaScript implementation.
+     * <p>Performance-optimized implementation that uses batch byte generation
+     * and direct char array construction for maximum efficiency.
      * 
      * @param size the length of the ID to generate (must be positive)
      * @return a URL-friendly unique string ID of the specified length
@@ -131,23 +88,21 @@ public class NanoId {
             throw new IllegalArgumentException("Size must be positive, got: " + size);
         }
         
-        // Use thread-local pool for better performance
-        BytePool pool = THREAD_LOCAL_POOL.get();
-        byte[] bytes = pool.getBytes(size);
+        SecureRandom random = THREAD_LOCAL_RANDOM.get();
+        char[] chars = new char[size];
         
-        // Pre-allocate StringBuilder with exact capacity
-        StringBuilder id = new StringBuilder(size);
+        // Generate bytes in batches for better performance
+        byte[] bytes = new byte[size];
+        random.nextBytes(bytes);
         
-        // Optimized loop with uniform distribution
+        // Optimized for 64-character alphabet - direct mapping without rejection sampling
         for (int i = 0; i < size; i++) {
-            // Ensure uniform distribution by masking to 0-63 range
-            // This matches the JavaScript implementation's approach
-            int byteValue = bytes[i] & 0xFF;  // Convert to unsigned
-            int idx = byteValue & 63;         // Mask to 0-63 range
-            id.append(URL_ALPHABET.charAt(idx));
+            // Convert byte to unsigned and mask to 0-63 range for uniform distribution
+            int index = (bytes[i] & 0xFF) & 63; // Mask to 0-63 (perfect for 64-char alphabet)
+            chars[i] = URL_ALPHABET.charAt(index);
         }
         
-        return id.toString();
+        return new String(chars);
     }
 
     /**
@@ -182,32 +137,31 @@ public class NanoId {
         // Calculate optimal step size (matches JS magic number 1.6)
         int step = (int) Math.ceil(1.6 * mask * size / alphabet.length());
         
-        // Pre-allocate with exact capacity
-        StringBuilder id = new StringBuilder(size);
+        // Use char array for better performance (eliminates StringBuilder overhead)
+        char[] chars = new char[size];
+        int filled = 0;
         
-        // Get thread-local random and pool
+        // Get thread-local random
         SecureRandom random = THREAD_LOCAL_RANDOM.get();
         
-        // Pre-allocate byte array outside the loop (CRITICAL FIX)
-        byte[] bytes = new byte[step];
-        
-        while (id.length() < size) {
-            // Reuse the same byte array (major performance improvement)
+        while (filled < size) {
+            // Generate bytes in batches for efficiency
+            byte[] bytes = new byte[step];
             random.nextBytes(bytes);
             
             // Process bytes efficiently
-            for (int i = 0; i < step && id.length() < size; i++) {
+            for (int i = 0; i < step && filled < size; i++) {
                 int byteValue = bytes[i] & 0xFF;  // Convert to unsigned
                 int idx = byteValue & mask;
                 
-                // Only append if index is valid (maintains uniform distribution)
+                // Only use if index is valid (maintains uniform distribution)
                 if (idx < alphabet.length()) {
-                    id.append(alphabet.charAt(idx));
+                    chars[filled++] = alphabet.charAt(idx);
                 }
             }
         }
         
-        return id.toString();
+        return new String(chars);
     }
     
     /**
