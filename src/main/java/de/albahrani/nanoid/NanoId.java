@@ -77,6 +77,8 @@ public class NanoId {
 
     /**
      * Generates a NanoId string with custom size (URL alphabet).
+     * Uses optimized algorithm for the 64-character URL alphabet with direct byte mapping.
+     * 
      * @param size Length of ID (must be positive)
      * @return URL-friendly unique string ID
      * @throws IllegalArgumentException if size is not positive
@@ -87,8 +89,12 @@ public class NanoId {
         char[] chars = new char[size];
         byte[] bytes = new byte[size];
         random.nextBytes(bytes);
+        
+        // Optimized for 64-character alphabet: each byte maps to exactly one character
+        // (bytes[i] & 0xFF) converts signed byte to unsigned int (0-255)
+        // & 63 masks to 6 bits (0-63), perfectly matching our 64-character alphabet
         for (int i = 0; i < size; i++) {
-            int index = (bytes[i] & 0xFF) & 63;
+            int index = (bytes[i] & 0xFF) & 63; // Extract 6 bits for 64-char alphabet
             chars[i] = NanoIdAlphabets.URL_ALPHABET.charAt(index);
         }
         return new String(chars);
@@ -96,6 +102,13 @@ public class NanoId {
 
     /**
      * Generates a NanoId string with custom alphabet and size.
+     * Uses uniform distribution algorithm to ensure fair character selection.
+     * 
+     * Algorithm explanation:
+     * 1. Calculate bitmask to extract uniform random bits
+     * 2. Generate bytes in batches to minimize SecureRandom calls
+     * 3. Use rejection sampling to ensure uniform distribution
+     * 
      * @param alphabet Custom alphabet (not null/empty)
      * @param size Length of ID (must be positive)
      * @return Unique string ID using custom alphabet
@@ -103,18 +116,30 @@ public class NanoId {
      */
     public static String customNanoid(String alphabet, int size) {
         NanoIdValidator.validateAlphabetAndSize(alphabet, size);
-        // Calculate bitmask for uniform distribution: ensures all indices are equally likely
+        
+        // Calculate bitmask for uniform distribution
+        // Find the smallest power of 2 that's >= alphabet.length()
+        // This ensures we can extract uniform random indices
         int mask = (2 << (31 - Integer.numberOfLeadingZeros(alphabet.length() - 1 | 1))) - 1;
+        
+        // Estimate bytes needed: 1.6 is a safety factor to reduce rejection probability
+        // Higher values = fewer rejections but more random bytes generated
         int step = (int) Math.ceil(1.6 * mask * size / alphabet.length());
+        
         char[] chars = new char[size];
         int filled = 0;
         SecureRandom random = SecureRandomProvider.get();
+        
+        // Rejection sampling loop: generate bytes until we have enough valid indices
         while (filled < size) {
             byte[] bytes = new byte[step];
             random.nextBytes(bytes);
+            
             for (int i = 0; i < step && filled < size; i++) {
-                int byteValue = bytes[i] & 0xFF;
-                int idx = byteValue & mask;
+                int byteValue = bytes[i] & 0xFF; // Convert to unsigned
+                int idx = byteValue & mask;      // Extract masked bits
+                
+                // Reject if index >= alphabet.length (ensures uniform distribution)
                 if (idx < alphabet.length()) {
                     chars[filled++] = alphabet.charAt(idx);
                 }
