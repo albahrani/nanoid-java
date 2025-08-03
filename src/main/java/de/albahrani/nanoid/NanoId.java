@@ -1,6 +1,7 @@
 package de.albahrani.nanoid;
 
 import java.security.SecureRandom;
+import java.util.function.Supplier;
 
 /**
  * Tiny, secure, URL-friendly unique string ID generator for Java.
@@ -22,13 +23,19 @@ public class NanoId {
     // Thread-local SecureRandom for performance in multi-threaded environments.
     private static final ThreadLocal<SecureRandom> THREAD_LOCAL_RANDOM = 
         ThreadLocal.withInitial(SecureRandom::new);
+    // Default ID length
+    public static final int DEFAULT_ID_LENGTH = 21;
+    // Common ID lengths for popular alphabets
+    public static final int HEX_ID_LENGTH = 16;
+    public static final int BASE58_ID_LENGTH = 22;
+    public static final int SHORT_ID_LENGTH = 8;
 
     /**
      * Generates a NanoId string (default 21 chars, URL alphabet).
      * @return URL-friendly unique string ID (21 chars)
      */
     public static String nanoid() {
-        return nanoid(21);
+        return nanoid(DEFAULT_ID_LENGTH);
     }
 
     /**
@@ -39,7 +46,7 @@ public class NanoId {
      */
     public static String nanoid(int size) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Size must be positive, got: " + size);
+            throw new IllegalArgumentException("NanoId: size must be positive, got: " + size);
         }
         SecureRandom random = THREAD_LOCAL_RANDOM.get();
         char[] chars = new char[size];
@@ -60,12 +67,8 @@ public class NanoId {
      * @throws IllegalArgumentException if alphabet is null/empty or size is not positive
      */
     public static String customNanoid(String alphabet, int size) {
-        if (alphabet == null || alphabet.isEmpty()) {
-            throw new IllegalArgumentException("Alphabet cannot be null or empty");
-        }
-        if (size <= 0) {
-            throw new IllegalArgumentException("Size must be positive, got: " + size);
-        }
+        validateAlphabetAndSize(alphabet, size);
+        // Calculate bitmask for uniform distribution: ensures all indices are equally likely
         int mask = (2 << (31 - Integer.numberOfLeadingZeros(alphabet.length() - 1 | 1))) - 1;
         int step = (int) Math.ceil(1.6 * mask * size / alphabet.length());
         char[] chars = new char[size];
@@ -87,21 +90,15 @@ public class NanoId {
 
     /**
      * Returns a Supplier for NanoId generation with custom alphabet and default size.
-     * Example: var hexGen = NanoId.customAlphabet("0123456789abcdef", 16); String id = hexGen.get();
+     * Example: var hexGen = NanoId.customAlphabet(HEX_ALPHABET, HEX_ID_LENGTH); String id = hexGen.get();
+     * Example: var base58Gen = NanoId.customAlphabet(BASE58_ALPHABET, BASE58_ID_LENGTH); String id = base58Gen.get();
+     * Example: var shortGen = NanoId.customAlphabet(URL_ALPHABET, SHORT_ID_LENGTH); String id = shortGen.get();
      * @param alphabet Alphabet to use
      * @param defaultSize Default size for IDs
      * @return Supplier generating IDs with specified alphabet and size
      */
-    public static java.util.function.Supplier<String> customAlphabet(String alphabet, int defaultSize) {
-        // Validate parameters once during creation
-        if (alphabet == null || alphabet.isEmpty()) {
-            throw new IllegalArgumentException("Alphabet cannot be null or empty");
-        }
-        if (defaultSize <= 0) {
-            throw new IllegalArgumentException("Default size must be positive, got: " + defaultSize);
-        }
-        
-        // Return optimized generator
+    public static Supplier<String> customAlphabet(String alphabet, int defaultSize) {
+        validateAlphabetAndSize(alphabet, defaultSize);
         return () -> customNanoid(alphabet, defaultSize);
     }
     
@@ -125,15 +122,28 @@ public class NanoId {
      * @return approximate collision probability as a double between 0 and 1
      */
     public static double calculateCollisionProbability(int alphabetSize, int idLength, long numIds) {
-        if (alphabetSize <= 0 || idLength <= 0 || numIds <= 0) {
-            throw new IllegalArgumentException("All parameters must be positive");
+        if (alphabetSize <= 0) {
+            throw new IllegalArgumentException("NanoId: alphabetSize must be positive, got: " + alphabetSize);
         }
-        
+        if (idLength <= 0) {
+            throw new IllegalArgumentException("NanoId: idLength must be positive, got: " + idLength);
+        }
+        if (numIds <= 0) {
+            throw new IllegalArgumentException("NanoId: numIds must be positive, got: " + numIds);
+        }
         double totalPossibleIds = Math.pow(alphabetSize, idLength);
-        
         // Birthday paradox approximation: P ≈ 1 - e^(-n²/(2N))
         // where n = number of IDs, N = total possible IDs
         double exponent = -(numIds * numIds) / (2.0 * totalPossibleIds);
         return 1.0 - Math.exp(exponent);
+    }
+
+    private static void validateAlphabetAndSize(String alphabet, int size) {
+        if (alphabet == null || alphabet.isEmpty()) {
+            throw new IllegalArgumentException("NanoId: alphabet cannot be null or empty");
+        }
+        if (size <= 0) {
+            throw new IllegalArgumentException("NanoId: size must be positive, got: " + size);
+        }
     }
 }

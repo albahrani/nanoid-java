@@ -227,15 +227,9 @@ public class NanoIdTest {
     public void testLargeCustomAlphabet() {
         String largeAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
         String id = NanoId.customNanoid(largeAlphabet, 50);
-        
         assertNotNull(id, "Generated ID should not be null");
         assertEquals(50, id.length(), "ID should have requested size");
-        
-        // Verify all characters are from the alphabet
-        for (char c : id.toCharArray()) {
-            assertTrue(largeAlphabet.indexOf(c) >= 0, 
-                      "Character '" + c + "' should be in custom alphabet");
-        }
+        assertAllCharsInAlphabet(id, largeAlphabet);
     }
     
     @Test
