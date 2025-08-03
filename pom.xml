@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nanoid</groupId>
     <artifactId>nanoid-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>nanoid-java</name>
     <description>Java port of the nanoid unique string ID generator</description>
@@ -35,6 +35,8 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.release>17</maven.compiler.release>
+        <junit.version>5.10.0</junit.version>
     </properties>
     <dependencies>
         <dependency>
