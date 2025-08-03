@@ -126,35 +126,29 @@ public class NanoIdLegacyCompatibilityTest {
     }
     
     @Nested
-    class DeprecatedApiCompatibility {
+    class ApiCompatibility {
         
         @Test
-        void deprecatedConstantsStillWork() {
-            // Verify deprecated constants still work for backward compatibility
-            @SuppressWarnings("deprecation")
-            String urlAlphabet = NanoId.URL_ALPHABET;
-            assertNotNull(urlAlphabet, "Deprecated URL_ALPHABET should still work");
+        void alphabetConstantsWorkCorrectly() {
+            // Verify alphabet constants work via the new API
+            String urlAlphabet = NanoIdAlphabets.URL_ALPHABET;
+            assertNotNull(urlAlphabet, "NanoIdAlphabets.URL_ALPHABET should work");
             assertEquals(NanoId.getDefaultAlphabet(), urlAlphabet,
-                "Deprecated URL_ALPHABET should match getDefaultAlphabet()");
+                "NanoIdAlphabets.URL_ALPHABET should match getDefaultAlphabet()");
             
-            @SuppressWarnings("deprecation")
-            String hexAlphabet = NanoId.HEX_ALPHABET;
-            assertNotNull(hexAlphabet, "Deprecated HEX_ALPHABET should still work");
+            String hexAlphabet = NanoIdAlphabets.HEX_ALPHABET;
+            assertNotNull(hexAlphabet, "NanoIdAlphabets.HEX_ALPHABET should work");
             assertEquals("0123456789abcdef", hexAlphabet,
-                "Deprecated HEX_ALPHABET should have expected value");
+                "NanoIdAlphabets.HEX_ALPHABET should have expected value");
         }
         
         @Test
-        void deprecatedCollisionCalculationStillWorks() {
-            @SuppressWarnings("deprecation")
-            double prob = NanoId.calculateCollisionProbability(ALPHABET_SIZE, DEFAULT_ID_LENGTH, 1000);
+        void collisionCalculationWorks() {
+            double prob = CollisionProbabilityCalculator.calculate(ALPHABET_SIZE, DEFAULT_ID_LENGTH, 1000);
             assertTrue(prob >= 0.0 && prob <= 1.0,
-                "Deprecated collision probability calculation should still work");
-            
-            // Compare with new API to ensure consistency
-            double newProb = CollisionProbabilityCalculator.calculate(ALPHABET_SIZE, DEFAULT_ID_LENGTH, 1000);
-            assertEquals(newProb, prob, 0.0001,
-                "Deprecated and new collision calculation should produce same results");
+                "Collision probability calculation should work correctly");
+            assertTrue(prob < 0.001,
+                "Collision probability should be very low for reasonable parameters");
         }
     }
     

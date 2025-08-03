@@ -11,45 +11,6 @@ import java.util.function.Supplier;
  */
 public class NanoId {
     /**
-     * Default URL-friendly alphabet (A-Za-z0-9_-), optimized for compression.
-     * Use for standard NanoId generation.
-     * @deprecated Use {@link NanoIdAlphabets#URL_ALPHABET} instead
-     */
-    @Deprecated(since = "1.1.0", forRemoval = false)
-    public static final String URL_ALPHABET = NanoIdAlphabets.URL_ALPHABET;
-    
-    /**
-     * Hexadecimal alphabet (0-9, a-f) for hex IDs.
-     * Use for hexadecimal NanoIds.
-     * @deprecated Use {@link NanoIdAlphabets#HEX_ALPHABET} instead
-     */
-    @Deprecated(since = "1.1.0", forRemoval = false)
-    public static final String HEX_ALPHABET = NanoIdAlphabets.HEX_ALPHABET;
-    
-    /**
-     * Base58 alphabet (no 0, O, I, l) for readability, used in crypto/URLs.
-     * Use for Base58 NanoIds.
-     * @deprecated Use {@link NanoIdAlphabets#BASE58_ALPHABET} instead
-     */
-    @Deprecated(since = "1.1.0", forRemoval = false)
-    public static final String BASE58_ALPHABET = NanoIdAlphabets.BASE58_ALPHABET;
-    
-    /**
-     * Numeric alphabet (0-9) for number-only IDs and PINs.
-     * Use for numeric NanoIds.
-     * @deprecated Use {@link NanoIdAlphabets#NUMERIC_ALPHABET} instead
-     */
-    @Deprecated(since = "1.1.0", forRemoval = false)
-    public static final String NUMERIC_ALPHABET = NanoIdAlphabets.NUMERIC_ALPHABET;
-    
-    /**
-     * Alphanumeric alphabet (A-Z, a-z, 0-9), no special chars.
-     * Use for alphanumeric NanoIds.
-     * @deprecated Use {@link NanoIdAlphabets#ALPHANUMERIC_ALPHABET} instead
-     */
-    @Deprecated(since = "1.1.0", forRemoval = false)
-    public static final String ALPHANUMERIC_ALPHABET = NanoIdAlphabets.ALPHANUMERIC_ALPHABET;
-    /**
      * Default NanoId length (21).
      * Used for standard NanoId generation.
      */
@@ -172,21 +133,6 @@ public class NanoId {
         return NanoIdAlphabets.URL_ALPHABET;
     }
     
-    /**
-     * Calculates the approximate collision probability for the given alphabet size and ID length.
-     * This is useful for determining appropriate ID lengths for your use case.
-     * 
-     * @param alphabetSize the size of the alphabet
-     * @param idLength the length of the ID
-     * @param numIds expected number of IDs to generate
-     * @return approximate collision probability as a double between 0 and 1
-     * @deprecated Use {@link CollisionProbabilityCalculator#calculate(int, int, long)} instead
-     */
-    @Deprecated(since = "1.1.0", forRemoval = false)
-    public static double calculateCollisionProbability(int alphabetSize, int idLength, long numIds) {
-        return CollisionProbabilityCalculator.calculate(alphabetSize, idLength, numIds);
-    }
-
     /**
      * Generates a hexadecimal NanoId (16 chars, HEX_ALPHABET).
      * @return Hexadecimal unique string ID
