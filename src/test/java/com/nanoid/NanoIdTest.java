@@ -132,9 +132,9 @@ public class NanoIdTest {
         
         for (char c : alphabet.toCharArray()) {
             int count = distribution.getOrDefault(c, 0);
-            assertTrue("Character '" + c + "' distribution should be within tolerance. " +
-                      "Expected: " + expected + ", Got: " + count,
-                      Math.abs(count - expected) <= tolerance);
+            assertTrue(Math.abs(count - expected) <= tolerance,
+                      "Character '" + c + "' distribution should be within tolerance. " +
+                      "Expected: " + expected + ", Got: " + count);
         }
     }
     
@@ -155,21 +155,21 @@ public class NanoIdTest {
                         threadIds.add(id);
                     }
                     allIds.addAll(threadIds);
-                    assertEquals("Each thread should generate unique IDs", 
-                               idsPerThread, threadIds.size());
+                    assertEquals(idsPerThread, threadIds.size(),
+                               "Each thread should generate unique IDs");
                 } finally {
                     latch.countDown();
                 }
             });
         }
         
-        assertTrue("All threads should complete within 30 seconds", 
-                  latch.await(30, TimeUnit.SECONDS));
+        assertTrue(latch.await(30, TimeUnit.SECONDS),
+                  "All threads should complete within 30 seconds");
         executor.shutdown();
         
         int expectedTotal = numThreads * idsPerThread;
-        assertEquals("All generated IDs should be globally unique", 
-                    expectedTotal, allIds.size());
+        assertEquals(expectedTotal, allIds.size(),
+                    "All generated IDs should be globally unique");
     }
     
     @Test
@@ -193,8 +193,9 @@ public class NanoIdTest {
                          iterations, durationMs, iterations / durationMs);
         
         // Performance should be reasonable (less than 1ms per 1000 operations)
-        assertTrue("Performance should be reasonable: " + durationMs + " ms for " + iterations + " operations",
-                  durationMs < iterations); // Less than 1ns per operation
+        assertTrue(durationMs < iterations,
+                  "Performance should be reasonable: " + durationMs + " ms for " + iterations + " operations");
+                  // Less than 1ns per operation
     }
     
     @Test
@@ -204,40 +205,41 @@ public class NanoIdTest {
         String id1 = hexGenerator.get();
         String id2 = hexGenerator.get();
         
-        assertNotNull("First generated ID should not be null", id1);
-        assertNotNull("Second generated ID should not be null", id2);
-        assertEquals("Both IDs should have correct length", 8, id1.length());
-        assertEquals("Both IDs should have correct length", 8, id2.length());
-        assertNotEquals("IDs should be different", id1, id2);
-        assertTrue("First ID should be valid hex", id1.matches("^[0-9a-f]+$"));
-        assertTrue("Second ID should be valid hex", id2.matches("^[0-9a-f]+$"));
+        assertNotNull(id1, "First generated ID should not be null");
+        assertNotNull(id2, "Second generated ID should not be null");
+        assertEquals(8, id1.length(), "Both IDs should have correct length");
+        assertEquals(8, id2.length(), "Both IDs should have correct length");
+        assertNotEquals(id1, id2, "IDs should be different");
+        assertTrue(id1.matches("^[0-9a-f]+$"), "First ID should be valid hex");
+        assertTrue(id2.matches("^[0-9a-f]+$"), "Second ID should be valid hex");
     }
     
     @Test
     public void testGetDefaultAlphabet() {
         String alphabet = NanoId.getDefaultAlphabet();
-        assertNotNull("Default alphabet should not be null", alphabet);
-        assertEquals("Default alphabet should match URL_ALPHABET", URL_ALPHABET, alphabet);
-        assertEquals("Default alphabet should have 64 characters", 64, alphabet.length());
+        assertNotNull(alphabet, "Default alphabet should not be null");
+        assertEquals(URL_ALPHABET, alphabet, "Default alphabet should match URL_ALPHABET");
+        assertEquals(64, alphabet.length(), "Default alphabet should have 64 characters");
     }
     
     @Test
     public void testCollisionProbabilityCalculation() {
         // Test with known values
         double prob1 = NanoId.calculateCollisionProbability(64, 21, 1000);
-        assertTrue("Collision probability should be very low for 1000 IDs", prob1 < 0.001);
+        assertTrue(prob1 < 0.001, "Collision probability should be very low for 1000 IDs");
         
         double prob2 = NanoId.calculateCollisionProbability(26, 5, 100000);
-        assertTrue("Collision probability should be higher for short IDs", prob2 > prob1);
+        assertTrue(prob2 > prob1, "Collision probability should be higher for short IDs");
         
         // Test edge case
         double prob3 = NanoId.calculateCollisionProbability(64, 21, 1);
-        assertEquals("Collision probability should be 0 for single ID", 0.0, prob3, 0.0001);
+        assertEquals(0.0, prob3, 0.0001, "Collision probability should be 0 for single ID");
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCollisionProbabilityInvalidAlphabetSize() {
-        NanoId.calculateCollisionProbability(0, 21, 1000);
+        assertThrows(IllegalArgumentException.class, () -> 
+            NanoId.calculateCollisionProbability(0, 21, 1000));
     }
     
     @Test
@@ -245,13 +247,13 @@ public class NanoIdTest {
         String largeAlphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
         String id = NanoId.customNanoid(largeAlphabet, 50);
         
-        assertNotNull("Generated ID should not be null", id);
-        assertEquals("ID should have requested size", 50, id.length());
+        assertNotNull(id, "Generated ID should not be null");
+        assertEquals(50, id.length(), "ID should have requested size");
         
         // Verify all characters are from the alphabet
         for (char c : id.toCharArray()) {
-            assertTrue("Character '" + c + "' should be in custom alphabet", 
-                      largeAlphabet.indexOf(c) >= 0);
+            assertTrue(largeAlphabet.indexOf(c) >= 0, 
+                      "Character '" + c + "' should be in custom alphabet");
         }
     }
     
@@ -276,8 +278,8 @@ public class NanoIdTest {
         
         // Memory growth should be reasonable (less than 50MB for 100k IDs)
         long memoryGrowth = finalMemory - initialMemory;
-        assertTrue("Memory growth should be reasonable: " + (memoryGrowth / 1024 / 1024) + " MB",
-                  memoryGrowth < 50 * 1024 * 1024);
+        assertTrue(memoryGrowth < 50 * 1024 * 1024,
+                  "Memory growth should be reasonable: " + (memoryGrowth / 1024 / 1024) + " MB");
     }
     
     // Legacy compatibility tests from original test suite
@@ -344,28 +346,28 @@ public class NanoIdTest {
         assertEquals("aaaaaaaaaa", nanoidA);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNanoidThrowsOnNegativeSize() {
-        NanoId.nanoid(-1);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.nanoid(-1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNanoidThrowsOnZeroSize() {
-        NanoId.nanoid(0);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.nanoid(0));
     }
 
-    @Test(expected = IllegalArgumentException.class) 
+    @Test
     public void testCustomNanoidThrowsOnNullAlphabet() {
-        NanoId.customNanoid(null, 10);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.customNanoid(null, 10));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCustomNanoidThrowsOnEmptyAlphabet() {
-        NanoId.customNanoid("", 10);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.customNanoid("", 10));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCustomNanoidThrowsOnNegativeSize() {
-        NanoId.customNanoid("abc", -1);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.customNanoid("abc", -1));
     }
 }
