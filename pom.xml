@@ -8,7 +8,7 @@
     <packaging>jar</packaging>
     <name>nanoid-java</name>
     <description>Java port of the nanoid unique string ID generator</description>
-    <url>https://github.com/ai/nanoid</url>
+    <url>https://github.com/albahrani/nanoid-java</url>
     <licenses>
         <license>
             <name>MIT License</name>
@@ -17,18 +17,18 @@
     </licenses>
     <developers>
         <developer>
-			<name>Alexander Al-Bahrani</name>
-			<email>github@a.no.spam.powerof4.de</email>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-			</roles>
+            <name>Alexander Al-Bahrani</name>
+            <email>github@a.no.spam.powerof4.de</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
         </developer>
     </developers>
     <scm>
-        <url>https://github.com/ai/nanoid</url>
-        <connection>scm:git:https://github.com/ai/nanoid.git</connection>
-        <developerConnection>scm:git:https://github.com/ai/nanoid.git</developerConnection>
+        <url>https://github.com/albahrani/nanoid-java</url>
+        <connection>scm:git:https://github.com/albahrani/nanoid-java.git</connection>
+        <developerConnection>scm:git:https://github.com/albahrani/nanoid-java.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <properties>
@@ -71,6 +71,14 @@
                 <configuration>
                     <source>17</source>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -108,22 +116,22 @@
     </build>
     <distributionManagement>
         <repository>
-            <id>central</id>
-            <name>Maven Central Repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <id>github</id>
+            <name>GitHub albahrani Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/albahrani/nanoid-java</url>
         </repository>
         <snapshotRepository>
-            <id>snapshots</id>
-            <name>Sonatype Snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <id>github</id>
+            <name>GitHub albahrani Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/albahrani/nanoid-java</url>
         </snapshotRepository>
     </distributionManagement>
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/ai/nanoid/issues</url>
+        <url>https://github.com/albahrani/nanoid-java/issues</url>
     </issueManagement>
     <ciManagement>
         <system>GitHub Actions</system>
-        <url>https://github.com/ai/nanoid/actions</url>
+        <url>https://github.com/albahrani/nanoid-java/actions</url>
     </ciManagement>
 </project>

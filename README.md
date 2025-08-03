@@ -16,8 +16,33 @@ A tiny, secure, URL-friendly, unique string ID generator for Java.
 ### Maven
 
 ```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/albahrani/nanoid-java</url>
+    </repository>
+</repositories>
+
+<!-- Add the dependency -->
 <dependency>
-    <groupId>com.nanoid</groupId>
+    <groupId>de.albahrani.nanoid</groupId>
+    <artifactId>nanoid-java</artifactId>
+    <version>1.1.0</version>
+</dependency>
+```
+
+**Authentication for GitHub Packages**: You need a Personal Access Token (PAT) with `read:packages` scope. Add it to your `~/.m2/settings.xml`:
+
+```xml
+<settings>
+    <servers>
+        <server>
+            <id>github</id>
+            <username>YOUR_GITHUB_USERNAME</username>
+            <password>YOUR_GITHUB_PAT</password>
+        </server>
+    </servers>
+</settings>
     <artifactId>nanoid-java</artifactId>
     <version>1.1.0</version>
 </dependency>
@@ -26,7 +51,20 @@ A tiny, secure, URL-friendly, unique string ID generator for Java.
 ### Gradle
 
 ```gradle
-implementation 'com.nanoid:nanoid-java:1.1.0'
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = "https://maven.pkg.github.com/albahrani/nanoid-java"
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation 'de.albahrani.nanoid:nanoid-java:1.1.0'
+}
 ```
 
 ## Usage
@@ -34,7 +72,7 @@ implementation 'com.nanoid:nanoid-java:1.1.0'
 ### Default ID (21 characters)
 
 ```java
-import com.nanoid.NanoId;
+import de.albahrani.nanoid.NanoId;
 
 String id = NanoId.nanoid();
 // Result: "K5urO4VjCU0LJEJmSGy0v"
