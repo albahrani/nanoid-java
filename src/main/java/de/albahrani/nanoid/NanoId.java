@@ -3,124 +3,60 @@ package de.albahrani.nanoid;
 import java.security.SecureRandom;
 
 /**
- * A tiny, secure, URL-friendly, unique string ID generator for Java.
- * 
- * <p>This class provides methods to generate unique IDs that are:
- * <ul>
- * <li>URL-friendly (uses A-Za-z0-9_- alphabet by default)</li>
- * <li>Secure (uses hardware random generator)</li>
- * <li>Compact (21 symbols by default, shorter than UUID)</li>
- * </ul>
- * 
- * <p>Performance optimizations:
- * <ul>
- * <li>Thread-local SecureRandom instances for better performance</li>
- * <li>Byte array pooling to reduce garbage collection</li>
- * <li>Optimized masking for uniform distribution</li>
- * </ul>
- * 
+ * Tiny, secure, URL-friendly unique string ID generator for Java.
+ * Generates compact, secure IDs using customizable alphabets and optimized performance (thread-local SecureRandom, byte pooling, uniform distribution).
  * @author Alexander Al-Bahrani
  * @version 1.1.0
  */
 public class NanoId {
-    
-    /**
-     * The default URL-friendly alphabet used by nanoid.
-     * Contains 64 characters: A-Za-z0-9_-
-     * Order optimized for better compression (same as JavaScript version).
-     */
+    // Default URL-friendly alphabet (A-Za-z0-9_-), optimized for compression.
     public static final String URL_ALPHABET = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
-    
-    /**
-     * Hexadecimal alphabet (0-9, a-f) for generating hex-only IDs.
-     * Useful for creating hex-encoded identifiers.
-     */
+    // Hexadecimal alphabet (0-9, a-f) for hex IDs.
     public static final String HEX_ALPHABET = "0123456789abcdef";
-    
-    /**
-     * Base58 alphabet (excludes 0, O, I, l for better readability).
-     * Commonly used in cryptocurrencies and URL shorteners.
-     */
+    // Base58 alphabet (no 0, O, I, l) for readability, used in crypto/URLs.
     public static final String BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-    
-    /**
-     * Numeric alphabet (0-9) for generating number-only IDs.
-     * Useful for numeric identifiers and PIN generation.
-     */
+    // Numeric alphabet (0-9) for number-only IDs and PINs.
     public static final String NUMERIC_ALPHABET = "0123456789";
-    
-    /**
-     * Alphanumeric alphabet (A-Z, a-z, 0-9) without special characters.
-     * Safe for systems that don't handle special characters well.
-     */
+    // Alphanumeric alphabet (A-Z, a-z, 0-9), no special chars.
     public static final String ALPHANUMERIC_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    
-    /**
-     * Thread-local SecureRandom for better performance in multi-threaded environments.
-     */
+    // Thread-local SecureRandom for performance in multi-threaded environments.
     private static final ThreadLocal<SecureRandom> THREAD_LOCAL_RANDOM = 
         ThreadLocal.withInitial(SecureRandom::new);
 
     /**
-     * Generates a NanoId string with the default size of 21 characters.
-     * 
-     * <p>Highly optimized version for the default URL alphabet.
-     * Eliminates array copying and uses direct char array generation.
-     * 
-     * @return a URL-friendly unique string ID of 21 characters
+     * Generates a NanoId string (default 21 chars, URL alphabet).
+     * @return URL-friendly unique string ID (21 chars)
      */
     public static String nanoid() {
         return nanoid(21);
     }
 
     /**
-     * Generates a NanoId string with the specified size.
-     * 
-     * <p>Performance-optimized implementation that uses batch byte generation
-     * and direct char array construction for maximum efficiency.
-     * 
-     * @param size the length of the ID to generate (must be positive)
-     * @return a URL-friendly unique string ID of the specified length
+     * Generates a NanoId string with custom size (URL alphabet).
+     * @param size Length of ID (must be positive)
+     * @return URL-friendly unique string ID
      * @throws IllegalArgumentException if size is not positive
      */
     public static String nanoid(int size) {
         if (size <= 0) {
             throw new IllegalArgumentException("Size must be positive, got: " + size);
         }
-        
         SecureRandom random = THREAD_LOCAL_RANDOM.get();
         char[] chars = new char[size];
-        
-        // Generate bytes in batches for better performance
         byte[] bytes = new byte[size];
         random.nextBytes(bytes);
-        
-        // Optimized for 64-character alphabet - direct mapping without rejection sampling
         for (int i = 0; i < size; i++) {
-            // Convert byte to unsigned and mask to 0-63 range for uniform distribution
-            int index = (bytes[i] & 0xFF) & 63; // Mask to 0-63 (perfect for 64-char alphabet)
+            int index = (bytes[i] & 0xFF) & 63;
             chars[i] = URL_ALPHABET.charAt(index);
         }
-        
         return new String(chars);
     }
 
     /**
-     * Generates a NanoId string with a custom alphabet and size.
-     * 
-     * <p>This method allows you to use your own alphabet for ID generation.
-     * The distribution will be uniform across all characters in the alphabet.
-     * 
-     * <p>Performance improvements:
-     * <ul>
-     * <li>Pre-calculates optimal byte buffer size</li>
-     * <li>Reuses byte arrays to reduce GC pressure</li>
-     * <li>Uses efficient masking for uniform distribution</li>
-     * </ul>
-     * 
-     * @param alphabet the custom alphabet to use for ID generation (must not be null or empty)
-     * @param size the length of the ID to generate (must be positive)
-     * @return a unique string ID using the custom alphabet
+     * Generates a NanoId string with custom alphabet and size.
+     * @param alphabet Custom alphabet (not null/empty)
+     * @param size Length of ID (must be positive)
+     * @return Unique string ID using custom alphabet
      * @throws IllegalArgumentException if alphabet is null/empty or size is not positive
      */
     public static String customNanoid(String alphabet, int size) {
@@ -130,55 +66,31 @@ public class NanoId {
         if (size <= 0) {
             throw new IllegalArgumentException("Size must be positive, got: " + size);
         }
-        
-        // Calculate mask for uniform distribution (matches JS implementation)
         int mask = (2 << (31 - Integer.numberOfLeadingZeros(alphabet.length() - 1 | 1))) - 1;
-        
-        // Calculate optimal step size (matches JS magic number 1.6)
         int step = (int) Math.ceil(1.6 * mask * size / alphabet.length());
-        
-        // Use char array for better performance (eliminates StringBuilder overhead)
         char[] chars = new char[size];
         int filled = 0;
-        
-        // Get thread-local random
         SecureRandom random = THREAD_LOCAL_RANDOM.get();
-        
         while (filled < size) {
-            // Generate bytes in batches for efficiency
             byte[] bytes = new byte[step];
             random.nextBytes(bytes);
-            
-            // Process bytes efficiently
             for (int i = 0; i < step && filled < size; i++) {
-                int byteValue = bytes[i] & 0xFF;  // Convert to unsigned
+                int byteValue = bytes[i] & 0xFF;
                 int idx = byteValue & mask;
-                
-                // Only use if index is valid (maintains uniform distribution)
                 if (idx < alphabet.length()) {
                     chars[filled++] = alphabet.charAt(idx);
                 }
             }
         }
-        
         return new String(chars);
     }
-    
+
     /**
-     * Creates a custom NanoId generator function with a specific alphabet and default size.
-     * This method is useful when you need to generate many IDs with the same configuration.
-     * 
-     * <p>Example usage:
-     * <pre>{@code
-     * var hexGenerator = NanoId.customAlphabet("0123456789abcdef", 16);
-     * String id1 = hexGenerator.get();
-     * String id2 = hexGenerator.get();
-     * }</pre>
-     * 
-     * @param alphabet the alphabet to use for ID generation
-     * @param defaultSize the default size for generated IDs
-     * @return a supplier that generates IDs with the specified alphabet and size
-     * @throws IllegalArgumentException if alphabet is null/empty or defaultSize is not positive
+     * Returns a Supplier for NanoId generation with custom alphabet and default size.
+     * Example: var hexGen = NanoId.customAlphabet("0123456789abcdef", 16); String id = hexGen.get();
+     * @param alphabet Alphabet to use
+     * @param defaultSize Default size for IDs
+     * @return Supplier generating IDs with specified alphabet and size
      */
     public static java.util.function.Supplier<String> customAlphabet(String alphabet, int defaultSize) {
         // Validate parameters once during creation

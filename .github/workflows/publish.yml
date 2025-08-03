@@ -1,4 +1,4 @@
-name: Publish Package to GitHub Packages
+name: Publish to Maven Central
 
 on:
   release:
@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
     - name: Checkout code
@@ -20,8 +19,9 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
+        server-id: ossrh
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
 
     - name: Cache Maven dependencies
       uses: actions/cache@v4
@@ -30,10 +30,18 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
 
-    - name: Run tests
-      run: mvn -B test --file pom.xml
+    - name: Import GPG key
+      uses: crazy-max/ghaction-import-gpg@v6
+      with:
+        gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+        passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
-    - name: Publish to GitHub Packages Apache Maven
-      run: mvn deploy -s $GITHUB_WORKSPACE/settings.xml
+    - name: Run tests
+      run: mvn -B test
+
+    - name: Publish to Maven Central
+      run: mvn -B deploy -P release
       env:
-        GITHUB_TOKEN: ${{ github.token }}
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+        MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
