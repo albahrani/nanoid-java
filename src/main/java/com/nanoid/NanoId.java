@@ -32,6 +32,30 @@ public class NanoId {
     public static final String URL_ALPHABET = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
     
     /**
+     * Hexadecimal alphabet (0-9, a-f) for generating hex-only IDs.
+     * Useful for creating hex-encoded identifiers.
+     */
+    public static final String HEX_ALPHABET = "0123456789abcdef";
+    
+    /**
+     * Base58 alphabet (excludes 0, O, I, l for better readability).
+     * Commonly used in cryptocurrencies and URL shorteners.
+     */
+    public static final String BASE58_ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    
+    /**
+     * Numeric alphabet (0-9) for generating number-only IDs.
+     * Useful for numeric identifiers and PIN generation.
+     */
+    public static final String NUMERIC_ALPHABET = "0123456789";
+    
+    /**
+     * Alphanumeric alphabet (A-Z, a-z, 0-9) without special characters.
+     * Safe for systems that don't handle special characters well.
+     */
+    public static final String ALPHANUMERIC_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    
+    /**
      * Pool size multiplier for efficient random byte generation.
      * Larger pools reduce system calls but use more memory.
      */

@@ -19,14 +19,14 @@ A tiny, secure, URL-friendly, unique string ID generator for Java.
 <dependency>
     <groupId>com.nanoid</groupId>
     <artifactId>nanoid-java</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
 ### Gradle
 
 ```gradle
-implementation 'com.nanoid:nanoid-java:1.0.0'
+implementation 'com.nanoid:nanoid-java:1.1.0'
 ```
 
 ## Usage

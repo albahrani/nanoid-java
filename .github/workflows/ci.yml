@@ -48,6 +48,17 @@ jobs:
       if: success() || failure()
       with:
         name: Maven Tests
+        path: 'target/surefire-reports/*.xml'
+        reporter: java-junit
+        fail-on-error: true
+        
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v5
+      if: matrix.java == '17'  # Only upload coverage for one Java version
+      with:
+        files: ./target/site/jacoco/jacoco.xml
+        fail_ci_if_error: false
+        token: ${{ secrets.CODECOV_TOKEN }}
         path: target/surefire-reports/*.xml
         reporter: java-junit
         fail-on-error: true

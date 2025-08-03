@@ -1,8 +1,8 @@
 package com.nanoid;
 
-import org.junit.Test;
-import org.junit.Before;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.Pattern;
@@ -24,7 +24,7 @@ public class NanoIdTest {
     private static final String URL_ALPHABET = "useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";
     private static final Pattern URL_ALPHABET_PATTERN = Pattern.compile("^[" + Pattern.quote(URL_ALPHABET) + "]+$");
     
-    @Before
+    @BeforeEach
     public void setUp() {
         // Reset any thread-local state before each test
         System.gc(); // Suggest garbage collection
@@ -33,10 +33,10 @@ public class NanoIdTest {
     @Test
     public void testDefaultNanoId() {
         String id = NanoId.nanoid();
-        assertNotNull("Generated ID should not be null", id);
-        assertEquals("Default ID should be 21 characters", 21, id.length());
-        assertTrue("ID should only contain URL alphabet characters", 
-                  URL_ALPHABET_PATTERN.matcher(id).matches());
+        assertNotNull(id, "Generated ID should not be null");
+        assertEquals(21, id.length(), "Default ID should be 21 characters");
+        assertTrue(URL_ALPHABET_PATTERN.matcher(id).matches(), 
+                  "ID should only contain URL alphabet characters");
     }
     
     @Test
@@ -44,21 +44,21 @@ public class NanoIdTest {
         int[] sizes = {1, 5, 10, 32, 100};
         for (int size : sizes) {
             String id = NanoId.nanoid(size);
-            assertNotNull("Generated ID should not be null", id);
-            assertEquals("ID should have requested size", size, id.length());
-            assertTrue("ID should only contain URL alphabet characters", 
-                      URL_ALPHABET_PATTERN.matcher(id).matches());
+            assertNotNull(id, "Generated ID should not be null");
+            assertEquals(size, id.length(), "ID should have requested size");
+            assertTrue(URL_ALPHABET_PATTERN.matcher(id).matches(), 
+                      "ID should only contain URL alphabet characters");
         }
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testInvalidSize() {
-        NanoId.nanoid(0);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.nanoid(0));
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNegativeSize() {
-        NanoId.nanoid(-1);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.nanoid(-1));
     }
     
     @Test
@@ -68,10 +68,10 @@ public class NanoIdTest {
         
         for (int i = 0; i < count; i++) {
             String id = NanoId.nanoid();
-            assertTrue("All IDs should be unique", ids.add(id));
+            assertTrue(ids.add(id), "All IDs should be unique");
         }
         
-        assertEquals("Should have generated exactly " + count + " unique IDs", count, ids.size());
+        assertEquals(count, ids.size(), "Should have generated exactly " + count + " unique IDs");
     }
     
     @Test
@@ -79,13 +79,13 @@ public class NanoIdTest {
         String alphabet = "abcdef";
         String id = NanoId.customNanoid(alphabet, 10);
         
-        assertNotNull("Generated ID should not be null", id);
-        assertEquals("ID should have requested size", 10, id.length());
+        assertNotNull(id, "Generated ID should not be null");
+        assertEquals(10, id.length(), "ID should have requested size");
         
         // Check that all characters are from the custom alphabet
         for (char c : id.toCharArray()) {
-            assertTrue("Character '" + c + "' should be in custom alphabet", 
-                      alphabet.indexOf(c) >= 0);
+            assertTrue(alphabet.indexOf(c) >= 0, 
+                      "Character '" + c + "' should be in custom alphabet");
         }
     }
     
@@ -94,24 +94,24 @@ public class NanoIdTest {
         String hexAlphabet = "0123456789abcdef";
         String id = NanoId.customNanoid(hexAlphabet, 16);
         
-        assertNotNull("Generated ID should not be null", id);
-        assertEquals("Hex ID should be 16 characters", 16, id.length());
-        assertTrue("ID should be valid hex", id.matches("^[0-9a-f]+$"));
+        assertNotNull(id, "Generated ID should not be null");
+        assertEquals(16, id.length(), "Hex ID should be 16 characters");
+        assertTrue(id.matches("^[0-9a-f]+$"), "ID should be valid hex");
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCustomAlphabetNull() {
-        NanoId.customNanoid(null, 10);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.customNanoid(null, 10));
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCustomAlphabetEmpty() {
-        NanoId.customNanoid("", 10);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.customNanoid("", 10));
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testCustomAlphabetInvalidSize() {
-        NanoId.customNanoid("abc", 0);
+        assertThrows(IllegalArgumentException.class, () -> NanoId.customNanoid("abc", 0));
     }
     
     @Test
