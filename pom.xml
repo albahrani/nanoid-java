@@ -114,5 +114,11 @@
         <!-- Removed release profile for Maven Central publishing -->
     </profiles>
     
-    <!-- Removed distributionManagement for Maven Central publishing -->
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/albahrani/nanoid-java</url>
+        </repository>
+    </distributionManagement>
 </project>
