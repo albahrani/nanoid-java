@@ -1,5 +1,11 @@
 # nanoid-java
 
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/albahrani/nanoid-java)](https://github.com/albahrani/nanoid-java/releases)
+[![Java CI with Maven](https://github.com/albahrani/nanoid-java/actions/workflows/maven.yml/badge.svg)](https://github.com/albahrani/nanoid-java/actions/workflows/maven.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java Version](https://img.shields.io/badge/Java-17%2B-blue.svg)](https://openjdk.org/projects/jdk/17/)
+[![GitHub Packages](https://img.shields.io/badge/GitHub-Packages-green.svg)](https://github.com/albahrani/nanoid-java/packages)
+
 Java port of the [nanoid](https://github.com/ai/nanoid) unique string ID generator.
 
 A tiny, secure, URL-friendly, unique string ID generator for Java.
