@@ -13,7 +13,23 @@ A tiny, secure, URL-friendly, unique string ID generator for Java.
 
 ## Installation
 
+This library is published to **GitHub Packages**. You'll need to configure your Maven or Gradle to access GitHub Packages.
+
 ### Maven
+
+Add the GitHub Packages repository to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>github</id>
+        <name>GitHub Packages</name>
+        <url>https://maven.pkg.github.com/albahrani/nanoid-java</url>
+    </repository>
+</repositories>
+```
+
+Then add the dependency:
 
 ```xml
 <dependency>
@@ -25,13 +41,28 @@ A tiny, secure, URL-friendly, unique string ID generator for Java.
 
 ### Gradle
 
+Add the GitHub Packages repository to your `build.gradle`:
+
+```gradle
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/albahrani/nanoid-java")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+}
+```
+
+Then add the dependency:
+
 ```gradle
 dependencies {
     implementation 'de.albahrani.nanoid:nanoid-java:1.1.0'
 }
 ```
-
-**No authentication required!** This library is published to Maven Central for easy consumption.
 
 ## Usage
 
