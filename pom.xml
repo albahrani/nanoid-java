@@ -46,7 +46,7 @@
         <!-- Plugin versions -->
         <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
-        <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
+        <jacoco.plugin.version>0.8.14</jacoco.plugin.version>
         
         <!-- GPG signing control -->
         <gpg.skip>true</gpg.skip>
