@@ -34,20 +34,20 @@ jobs:
       run: mvn -B test --file pom.xml
     
     - name: Upload JAR artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: nanoid-java-jar
         path: target/*.jar
         
     - name: Upload test results
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: always()
       with:
         name: test-results
         path: target/surefire-reports/
         
     - name: Upload coverage reports
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       if: always()
       with:
         name: coverage-report
