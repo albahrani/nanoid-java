@@ -1,0 +1,77 @@
+# .gitignore for Secure Mail Project
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+*.js.map
+*.d.ts.map
+
+# Development
+.env
+.env.local
+.env.*.local
+*.log
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+data/
+
+# OS files
+.DS_Store
+Thumbs.db
+*~
+.directory
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+.project
+.settings/
+*.sublime-*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Keys (never commit!)
+*.key
+*.pem
+*.p12
+*.pfx
+keys/
+secrets/
+
+# Electron
+out/
+dist-electron/
+
+# Mobile
+*.apk
+*.ipa
+android/
+ios/
+
+# Logs
+logs/
+*.log
+
+# Package manager locks (optional - remove if you want to commit them)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
